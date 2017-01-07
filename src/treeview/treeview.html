@@ -1,0 +1,57 @@
+<div class="comment-section">
+  <ul>
+  {{#each allComments as c1}}
+    <li>
+      <Comment comment={{c1}}></Comment>
+      <ul>
+      {{#each c1.children as c2}}
+        <li>
+          <Comment comment={{c2}}></Comment>
+          <ul>
+          {{#each c2.children as c3}}
+            <li>
+              <Comment comment={{c3}}></Comment>
+              <ul>
+                {{#each c3.children as c4}}
+                  <li>
+                    <Comment comment={{c4}}></Comment>
+                  </li>
+                {{/each}}
+              </ul>
+            </li>
+          {{/each}}
+          </ul>
+        </li>
+      {{/each}}
+      </ul>
+    </li>
+  {{/each}}
+  </ul>
+</div>
+
+<script>
+  import Comment from './comment';
+  import { CommentService } from './comment-service';
+  let commentService = new CommentService();
+  
+  export default {
+    onrender() {
+      commentService.getComments()
+                    .then((data) => {
+                      console.log(data);  
+                      this.set({allComments: data});
+                    });
+    },
+
+    data () {
+      return {
+        allComments: []
+      };
+    },
+
+    components: {
+      Comment
+    }
+  };
+
+</script>

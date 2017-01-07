@@ -1,0 +1,213 @@
+import treeview from './treeview/treeview';
+import grid from './grid/grid';
+
+var template = (function () {
+  
+  return {
+    data () {
+      return {
+        title: 'Demo Page'
+      }
+    },
+
+    components: {
+      treeview: treeview,
+      grid: grid
+    }
+  }; 
+
+}());
+
+function renderMainFragment ( root, component, target ) {
+	var div = document.createElement( 'div' );
+	
+	var h1 = document.createElement( 'h1' );
+	
+	var text = document.createTextNode( root.title );
+	h1.appendChild( text );
+	
+	div.appendChild( h1 )
+	
+	var text1 = document.createTextNode( "\n\n  " );
+	div.appendChild( text1 );
+	
+	var h4 = document.createElement( 'h4' );
+	
+	var text2 = document.createTextNode( "Treeview" );
+	h4.appendChild( text2 );
+	
+	div.appendChild( h4 )
+	
+	var text3 = document.createTextNode( "\n  " );
+	div.appendChild( text3 );
+	
+	var treeview = new template.components.treeview({
+		target: div,
+		parent: component
+	});
+	
+	var text4 = document.createTextNode( "\n\n   " );
+	div.appendChild( text4 );
+	
+	var h41 = document.createElement( 'h4' );
+	
+	var text5 = document.createTextNode( "Grid" );
+	h41.appendChild( text5 );
+	
+	div.appendChild( h41 )
+	
+	var text6 = document.createTextNode( "\n   " );
+	div.appendChild( text6 );
+	
+	var grid = new template.components.grid({
+		target: div,
+		parent: component
+	});
+	
+	target.appendChild( div )
+
+	return {
+		update: function ( changed, root ) {
+			text.data = root.title;
+		},
+
+		teardown: function ( detach ) {
+			if ( detach ) div.parentNode.removeChild( div );
+			
+			
+			
+			text1.parentNode.removeChild( text1 );
+			
+			
+			
+			text2.parentNode.removeChild( text2 );
+			
+			text3.parentNode.removeChild( text3 );
+			
+			treeview.teardown( false );
+			
+			text4.parentNode.removeChild( text4 );
+			
+			
+			
+			text5.parentNode.removeChild( text5 );
+			
+			text6.parentNode.removeChild( text6 );
+			
+			grid.teardown( false );
+		}
+	};
+}
+
+function app ( options ) {
+	var component = this;
+	var state = Object.assign( template.data(), options.data );
+
+	var observers = {
+		immediate: Object.create( null ),
+		deferred: Object.create( null )
+	};
+
+	var callbacks = Object.create( null );
+
+	function dispatchObservers ( group, newState, oldState ) {
+		for ( const key in group ) {
+			if ( !( key in newState ) ) continue;
+
+			const newValue = newState[ key ];
+			const oldValue = oldState[ key ];
+
+			if ( newValue === oldValue && typeof newValue !== 'object' ) continue;
+
+			const callbacks = group[ key ];
+			if ( !callbacks ) continue;
+
+			for ( let i = 0; i < callbacks.length; i += 1 ) {
+				const callback = callbacks[i];
+				if ( callback.__calling ) continue;
+
+				callback.__calling = true;
+				callback.call( component, newValue, oldValue );
+				callback.__calling = false;
+			}
+		}
+	}
+
+	this.fire = function fire ( eventName, data ) {
+		var handlers = eventName in callbacks && callbacks[ eventName ].slice();
+		if ( !handlers ) return;
+
+		for ( var i = 0; i < handlers.length; i += 1 ) {
+			handlers[i].call( this, data );
+		}
+	};
+
+	this.get = function get ( key ) {
+		return state[ key ];
+	};
+
+	this.set = function set ( newState ) {
+		const oldState = state;
+		state = Object.assign( {}, oldState, newState );
+		
+		dispatchObservers( observers.immediate, newState, oldState );
+		if ( mainFragment ) mainFragment.update( newState, state );
+		dispatchObservers( observers.deferred, newState, oldState );
+		
+		while ( this.__renderHooks.length ) {
+			var hook = this.__renderHooks.pop();
+			hook.fn.call( hook.context );
+		}
+	};
+
+	this.observe = function ( key, callback, options = {} ) {
+		const group = options.defer ? observers.deferred : observers.immediate;
+
+		( group[ key ] || ( group[ key ] = [] ) ).push( callback );
+
+		if ( options.init !== false ) {
+			callback.__calling = true;
+			callback.call( component, state[ key ] );
+			callback.__calling = false;
+		}
+
+		return {
+			cancel () {
+				const index = group[ key ].indexOf( callback );
+				if ( ~index ) group[ key ].splice( index, 1 );
+			}
+		};
+	};
+
+	this.on = function on ( eventName, handler ) {
+		const handlers = callbacks[ eventName ] || ( callbacks[ eventName ] = [] );
+		handlers.push( handler );
+
+		return {
+			cancel: function () {
+				const index = handlers.indexOf( handler );
+				if ( ~index ) handlers.splice( index, 1 );
+			}
+		};
+	};
+
+	this.teardown = function teardown ( detach ) {
+		this.fire( 'teardown' );
+
+		mainFragment.teardown( detach !== false );
+		mainFragment = null;
+
+		state = {};
+	};
+
+	this.__renderHooks = [];
+	
+	var mainFragment = renderMainFragment( state, this, options.target );
+	
+	while ( this.__renderHooks.length ) {
+		var hook = this.__renderHooks.pop();
+		hook.fn.call( hook.context );
+	}
+}
+
+export default app;

@@ -1,0 +1,21 @@
+{
+  "name": "svelte-treeview",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Torgeir Helgevold",
+  "license": "MIT",
+  "scripts": {
+    "build": "./build.sh && rollup -c rollup-config.js",
+    "start": "lite-server"
+  },
+  "devDependencies": {
+    "google-closure-compiler-js": "^20161024.0.0",
+    "lite-server": "^2.2.2",
+    "rollup": "^0.36.0",
+    "rollup-plugin-closure-compiler-js": "^1.0.2",
+    "rollup-plugin-uglify": "^1.0.1"
+  },
+  "dependencies": {
+    "bootstrap": "^3.3.7"
+  }
+}

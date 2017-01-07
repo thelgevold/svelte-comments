@@ -1,0 +1,24 @@
+<div>
+  <div class="comment">
+    <div class="commentDate">{{created}}</div>
+    <h5>{{comment['author']}}</h5>
+    <div>
+      {{comment.text}}
+    </div>
+    <div class="reply-link"><a click.trigger="reply()">Reply</a></div>
+ </div>
+</div>
+
+<script>
+  export default {
+    data () {
+      return {
+        comment: {}
+      };
+    },
+
+    computed: {
+      created: comment => new Date(comment['created']).toDateString()
+    }
+  }
+</script>
