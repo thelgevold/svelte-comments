@@ -1,3 +1,3 @@
-svelte compile -i src/treeview/Comment.html -o src/treeview/comment.js
-svelte compile -i src/treeview/treeview.html -o src/treeview/treeview.js
-svelte compile -i src/app.html -o src/app.js
+svelte compile -i src/Comment.html -o src/comment.js
+svelte compile -i src/AddComment.html -o src/add-comment.js
+svelte compile -i src/Comments.html -o src/comments.js

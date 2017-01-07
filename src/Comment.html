@@ -1,0 +1,32 @@
+<div>
+  <div class="comment">
+    <div class="commentDate">{{created}}</div>
+    <h5>{{comment['author']}}</h5>
+    <div>
+      {{comment.text}}
+    </div>
+    <div class="reply-link"><a on:click="set({replying: true})">Reply</a></div>
+    {{#if replying}}
+      <AddComment parentId={{comment['id']}}></AddComment>
+    {{/if}}
+ </div>
+</div>
+
+<script>
+  import AddComment from './add-comment';
+
+  export default {
+    data () {
+      return {
+        comment: {},
+        replying: false
+      };
+    },
+
+    computed: {
+      created: comment => new Date(comment['created']).toDateString()
+    },
+
+    components: {AddComment}
+  }
+</script>

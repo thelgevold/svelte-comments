@@ -12,9 +12,8 @@ export default {
       languageIn: 'ECMASCRIPT6',
       languageOut: 'ECMASCRIPT5',
       compilationLevel: 'ADVANCED',
-      warningLevel: 'DEFAULT'
-      //externs: [{src:`var CommentModel = function(){};
-       //        `}]
+      warningLevel: 'DEFAULT',
+      externs: [{src:`var commentCtx; commentCtx.url; commentCtx.articleId;`}]
     })
   ]
 }

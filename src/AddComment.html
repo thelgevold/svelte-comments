@@ -1,0 +1,60 @@
+{{#if !saved}}
+<div>
+  <div class="form-group">
+    <input ref:name type="text" class="form-control" id="inputName" placeholder="Name">
+  </div>
+  <div class="form-group" style="margin-top: 5px;">
+    <textarea ref:comment maxLength="1000" rows="5" class="form-control" id="inputComment" placeholder="Comment - no markup please"></textarea>
+  </div>
+
+  <button type="button" class="btn btn-primary" on:click="save()">Save</button>
+</div>
+{{/if}}
+
+{{#if saved}}
+  <div class="alert alert-success">Thanks for your feedback! Your comment will post as soon as I review it</div>
+{{/if}}
+
+{{#if error}}
+  <div style="margin-top: 10px;" class="alert alert-danger">Sorry, there was an error</div>
+{{/if}}
+<input type="hidden" ref:parentId value="{{parentId}}" />
+<script>
+  import { CommentService } from './comment-service';
+  let commentService = new CommentService();
+
+  export default {
+    
+    data () {
+      return {
+        saved: false,
+        error: false,
+        parentId: null
+      };
+    },
+
+    methods: {
+      save() {
+        const comment = this.refs.comment.value;
+        const name = this.refs.name.value;
+        const parentId = this.refs.parentId.value || null;
+
+        if(!comment || !name) {
+          return;
+        }
+
+        commentService.saveComment(parentId || null, name, comment)
+                      .then(() => {
+                         this.set({saved: true});
+                         this.set({error: false});
+                      })
+                      .catch((e) => {
+                         console.log(e);
+                         this.set({error: true});
+                         this.set({saved: false});
+                      })
+      }
+    }
+  }
+
+</script>

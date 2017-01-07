@@ -1,5 +1,5 @@
-import app from './app';
+import comments from './comments';
 
-var demoApp = new app({
+var commentSection = new comments({
   target: document.querySelector( 'main' )
 });
